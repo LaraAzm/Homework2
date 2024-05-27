@@ -1,0 +1,197 @@
+---
+title: "Learning to Program in Base R"
+author: Laraib Azmat
+date: May 22, 2024
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: inline
+---
+
+### Task 1: Basic Vector Practice
+
+-   Creating names for Patients
+
+```{r patient render}
+patient <- paste("Subject", 1:20, sep = "_")
+```
+
+-   Creating a new object using pre-treatment values
+
+```{r pretreatment raw}
+t <- c(130, 128, 116, 124, 133, 134, 118, 126, 114, 127, 141, 138, 128, 140, 137, 131, 120, 128, 139, 135)
+t
+```
+
+-   Adding patient names to pre-treatment values
+
+```{r pretreatment object with patient}
+names(t)[1:20] <- patient
+pre_bp <- t  #created a new object with the added patient names
+pre_bp
+```
+
+-   Creating a new object with post-treatment value
+
+```{r posttreatment raw}
+p <- c(114, 98, 113, 99, 107, 116, 113, 111, 119, 117, 101, 119, 130, 122, 106, 106, 124, 102, 117, 113)
+p
+```
+
+-   Adding patient names to post-treatment values
+
+```{r posttreatment object with patient}
+names(p)[1:20] <- patient
+post_bp <- p  #created a new object with the added patient names
+post_bp
+```
+
+-   Calculating change in blood pressure and defining it as a new item
+
+```{r difference}
+diff_bp <- post_bp-pre_bp  #created a new object with the difference in blood pressure
+diff_bp
+```
+
+-   Calculating decrease in blood pressure for all patients
+
+```{r difference average}
+mean(diff_bp)
+```
+
+-   Indicating which patient had an increase in blood pressure
+
+```{r increased bp}
+which(diff_bp > 0, arr.ind = TRUE)
+```
+
+-   Isolating patient data with increased blood pressure
+
+```{r increased bp only}
+pos_diff <- diff_bp[diff_bp > 0] #created a new object with only the data of the patients that had an increase in blood pressure
+pos_diff
+```
+
+-   Calculating average increase in blood pressure
+
+```{r increased bp average}
+mean(pos_diff)
+```
+
+## Task 2: Basic Data Frame Practice
+
+```{r making data frame}
+bp_df <- data.frame("Patient" = patient, "Pretreatment" = pre_bp, "Posttreatement" = post_bp, "Difference" = diff_bp)
+rownames(bp_df) <- NULL  #Hiding row names due to repetition
+bp_df
+```
+
+-   Showing rows with only negative difference
+
+```{r creating subset}
+bp_sub <- subset(bp_df, diff_bp < 0)
+bp_sub
+```
+
+-   New column with True statements
+
+```{r creating a new column}
+bp_df$BPLower <- ifelse(bp_df$Posttreatement < 120, TRUE, " ")  #adding a new column with a condition on Posttreatment
+bp_df
+```
+
+-   Print a final table
+
+```{r final print}
+#| echo: false
+knitr::kable(bp_df)
+```
+
+## Task 3: List Practice
+
+-   Creating a new object using placebo pre-treatment values
+
+```{r placebo pretreatment}
+b <- c( 138, 135, 147, 117, 152, 134, 114, 121, 131, 130)
+b
+```
+
+-   Creating a new object using placebo post-treatment values
+
+```{r placebo posttreatment}
+a <- c( 105, 136, 123, 130, 134, 143, 135, 139, 120, 124)
+a
+```
+
+-   Creating names for patients treated with placebo
+
+```{r placebo patients}
+p_patient <- paste("Subject", 1:10, sep = "_")
+p_patient
+```
+
+-   Repeating steps from Task 2 to create a new data frame
+
+```{r placebo data frame}
+names(b)[1:10] <- p_patient
+names(a)[1:10] <- p_patient
+p_pre <- b
+p_post <- a
+p_diff <- (p_post-p_pre)
+p_df <- data.frame("Patient" = p_patient, "PrePlacebo" = p_pre, "PostPlacebo" = p_post, "Difference" = p_diff)
+rownames(p_df) <- NULL  #Hiding row names due to repetition
+p_sub <- subset(p_df, p_diff < 0)
+p_sub
+p_df$PLower <- ifelse(p_df$PostPlacebo < 120, TRUE, " ")
+p_df
+```
+
+-   Creating a list with the treatment data frame
+
+```{r treatments list}
+bloodpressure <- list(treatment = bp_df, placebo = p_df)
+bloodpressure
+```
+
+-   Practicing accessing a list
+
+```{r access practice}
+str(bloodpressure)
+bloodpressure$treatment[3]
+bloodpressure[[1]][2:3]
+```
+
+-   Accessing a specific part of a list
+
+```{r access placebo, pre-treatment}
+bloodpressure[[2]][2]
+```
+
+## Task 4: Control flow Practice
+
+-   Creating new columns
+
+```{r}
+bp_df$Status <- character(20)
+p_df$P.status <- character(10)
+```
+
+
+```{r}
+if(bloodpressure$treatment$Posttreatement[i] <= 120) {
+  bloodpressure$treatment$Status[i] <- "optimal"
+}
+else {NULL}
+```
+
+```{r}
+for (i in seq_along(bloodpressure$treatment)) {
+  if (bloodpressure$treatment$Posttreatement[i] <= 120) 
+    bloodpressure$treatment$Status[i] <- "Optimal" 
+ else if (bloodpressure$treatment$Posttreatement[i] > 120 & bloodpressure$treatment$Posttreatement[i] <=130) 
+      bloodpressure$treatment$Status[i] <- "Borderline"
+ else if (bloodpressure$treatment$Posttreatement[i] >130)
+      bloodpressure$treatment$Status[i] <- "High"
+}
+bloodpressure$treatment
+```
