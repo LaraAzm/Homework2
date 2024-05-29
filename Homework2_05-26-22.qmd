@@ -78,7 +78,7 @@ pos_diff
 mean(pos_diff)
 ```
 
-## Task 2: Basic Data Frame Practice
+### Task 2: Basic Data Frame Practice
 
 ```{r making data frame}
 bp_df <- data.frame("Patient" = patient, "Pretreatment" = pre_bp, "Posttreatement" = post_bp, "Difference" = diff_bp)
@@ -107,7 +107,7 @@ bp_df
 knitr::kable(bp_df)
 ```
 
-## Task 3: List Practice
+### Task 3: List Practice
 
 -   Creating a new object using placebo pre-treatment values
 
@@ -133,15 +133,22 @@ p_patient
 -   Repeating steps from Task 2 to create a new data frame
 
 ```{r placebo data frame}
+#apply patient names
 names(b)[1:10] <- p_patient
 names(a)[1:10] <- p_patient
+#rename the objects
 p_pre <- b
 p_post <- a
+#create a new object with the difference
 p_diff <- (p_post-p_pre)
+#create a data freame with the newly created objects and change names 
 p_df <- data.frame("Patient" = p_patient, "PrePlacebo" = p_pre, "PostPlacebo" = p_post, "Difference" = p_diff)
-rownames(p_df) <- NULL  #Hiding row names due to repetition
+#hiding row names due to repetition
+rownames(p_df) <- NULL
+#create an object with a subset
 p_sub <- subset(p_df, p_diff < 0)
 p_sub
+#adding a new column with a condition on PostPlacebo
 p_df$PLower <- ifelse(p_df$PostPlacebo < 120, TRUE, " ")
 p_df
 ```
@@ -156,8 +163,11 @@ bloodpressure
 -   Practicing accessing a list
 
 ```{r access practice}
+#Structure of the overall list 
 str(bloodpressure)
+#Return with only the Posttreatment column of the treatment element of the list
 bloodpressure$treatment[3]
+#Return with the second and third column of the first element of the list
 bloodpressure[[1]][2:3]
 ```
 
@@ -167,7 +177,7 @@ bloodpressure[[1]][2:3]
 bloodpressure[[2]][2]
 ```
 
-## Task 4: Control flow Practice
+### Task 4: Control flow Practice
 
 -   Creating new columns
 
@@ -176,6 +186,8 @@ bp_df$Status <- character(20)
 p_df$P.status <- character(10)
 ```
 
+  -   Creating a loop over bloodpressure list, treatment data frame and Posttreatment column   
+  
 ```{r for loop over treatment}
 for (i in seq_along(bloodpressure$treatment$Posttreatement)) { #This took me three days and a computer engineer brother to figure out...
   if(bloodpressure$treatment$Posttreatement[i] <= 120) {
@@ -189,6 +201,8 @@ for (i in seq_along(bloodpressure$treatment$Posttreatement)) { #This took me thr
 bloodpressure$treatment
 ```
 
+  -   Repeating the loop over bloodpressure list, placebo data frame and PostPlacebo column 
+  
 ```{r repeat for placebo}
 for (i in 1:length(bloodpressure$placebo$PostPlacebo)) {
   if(bloodpressure$placebo$PostPlacebo[i] <= 120) {
@@ -201,3 +215,44 @@ for (i in 1:length(bloodpressure$placebo$PostPlacebo)) {
 }
 bloodpressure$placebo
 ```
+
+### Task 5: Function Writing
+
+```{r}
+bp_fun <- function(bloodpressure, stat = "mean") {
+#create an empty list to store results
+  mean_results <- list()
+#repeat over each data frame in the list
+  for (i in 1:length(bloodpressure)) {
+  bp_data <- bloodpressure[[i]]
+#keep only numeric columns
+  num_col <- sapply(bp_data, is.numeric)
+  num_data <- bp_data[, num_col]
+#create a vector with the default value, failed multiple times because of this
+  default_value <- NA
+#compute the summary for numeric columns
+  mean_result <- setNames(rep(default_value, ncol(num_data)), names(num_data))
+  mean_result[] <- colMeans(num_data, na.rm = TRUE)
+#put the result in the empty list
+  mean_results[[i]] <- mean_result
+  }
+  return(mean_results)
+}
+```
+
+  -   Testing the function
+```{r function test}
+
+#I didn't really understand this part
+bp_fun(bloodpressure)
+
+bp_fun(bloodpressure, "var")
+
+bp_fun(bloodpressure, "sd")
+
+bp_fun(bloodpressure, "min")
+
+bp_fun(bloodpressure, "max")
+
+```
+
