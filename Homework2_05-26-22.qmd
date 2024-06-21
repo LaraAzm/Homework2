@@ -218,7 +218,7 @@ bloodpressure$placebo
 
 ### Task 5: Function Writing
 
-```{r}
+```{r incorrect fuction}
 bp_fun <- function(bloodpressure, stat = "mean") {
 #create an empty list to store results
   mean_results <- list()
@@ -240,19 +240,44 @@ bp_fun <- function(bloodpressure, stat = "mean") {
 }
 ```
 
+```{r correct function}
+calculate_stat <- function(bloodpressure, stat = "mean"){
+vals <- c("pre", "post", "diff")
+types <- c("placebo", "treatment")
+my_names <- character(6)
+counter <- 1
+for (i in types){
+for(j in vals){
+my_names[counter] <- paste(i, j, stat, sep = "_")
+counter <- counter + 1
+}
+}
+fun_stat <- get(stat)
+to_return <- c(fun_stat(bloodpressure$placebo$PrePlacebo),
+fun_stat(bloodpressure$placebo$PostPlacebo),
+fun_stat(bloodpressure$placebo$Difference),
+fun_stat(bloodpressure$treatment$Pretreatment),
+fun_stat(bloodpressure$treatment$Posttreatement),
+fun_stat(bloodpressure$treatment$Difference))
+names(to_return) <- my_names
+return(to_return)
+}
+calculate_stat(bloodpressure)
+```
+
   -   Testing the function
 ```{r function test}
 
 #I didn't really understand this part
-bp_fun(bloodpressure)
+calculate_stat(bloodpressure)
 
-bp_fun(bloodpressure, "var")
+calculate_stat(bloodpressure, "var")
 
-bp_fun(bloodpressure, "sd")
+calculate_stat(bloodpressure, "sd")
 
-bp_fun(bloodpressure, "min")
+calculate_stat(bloodpressure, "min")
 
-bp_fun(bloodpressure, "max")
+calculate_stat(bloodpressure, "max")
 
 ```
 
